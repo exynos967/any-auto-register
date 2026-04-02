@@ -1,7 +1,8 @@
-"""平台插件注册表 - 自动扫描 platforms/ 目录加载插件"""
+"""平台插件注册表 - 仅加载 Kiro 平台。"""
+
 import importlib
-import pkgutil
 from typing import Dict, Type
+
 from .base_platform import BasePlatform
 
 _registry: Dict[str, Type[BasePlatform]] = {}
@@ -14,13 +15,8 @@ def register(cls: Type[BasePlatform]):
 
 
 def load_all():
-    """自动扫描并加载 platforms/ 下所有插件"""
-    import platforms
-    for finder, name, _ in pkgutil.iter_modules(platforms.__path__, platforms.__name__ + "."):
-        try:
-            importlib.import_module(f"{name}.plugin")
-        except ModuleNotFoundError:
-            pass
+    """仅加载 Kiro 插件，项目已收缩为 Kiro-only。"""
+    importlib.import_module("platforms.kiro.plugin")
 
 
 def get(name: str) -> Type[BasePlatform]:

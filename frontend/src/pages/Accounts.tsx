@@ -483,7 +483,7 @@ function ActionMenu({ acc, onRefresh, actions }: { acc: any; onRefresh: () => vo
 export default function Accounts() {
   const { platform } = useParams<{ platform: string }>()
   const { token } = theme.useToken()
-  const [currentPlatform, setCurrentPlatform] = useState(platform || 'trae')
+  const [currentPlatform, setCurrentPlatform] = useState(platform || 'kiro')
   const [accounts, setAccounts] = useState<any[]>([])
   const [platformActions, setPlatformActions] = useState<any[]>([])
   const [total, setTotal] = useState(0)
@@ -511,7 +511,11 @@ export default function Accounts() {
   const [statusSyncLoading, setStatusSyncLoading] = useState<'probe_selected' | 'probe_all' | 'remote_selected' | 'remote_all' | ''>('')
 
   useEffect(() => {
-    if (platform) setCurrentPlatform(platform)
+    if (platform === 'kiro') {
+      setCurrentPlatform('kiro')
+      return
+    }
+    setCurrentPlatform('kiro')
   }, [platform])
 
   useEffect(() => {

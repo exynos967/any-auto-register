@@ -8,7 +8,7 @@
 
 > ⚠️ 免责声明：本项目仅供学习与研究使用，不得用于任何商业用途。使用本项目所产生的一切后果由使用者自行承担。
 
-多平台账号自动注册与管理系统，支持插件化扩展、Web UI 管理、批量注册、状态同步，以及本地 Turnstile Solver 自动拉起。
+当前仓库已收缩为 **Kiro-only** 的账号注册与管理系统，保留 Web UI 管理、批量注册、本地 Turnstile Solver 与 Kiro Manager 导入能力。
 
 ## 目录
 
@@ -18,7 +18,7 @@
 - [界面预览](#界面预览)
 - [技术栈](#技术栈)
 - [环境要求](#环境要求)
-- [ChatGPT 专项能力](#chatgpt-专项能力)
+- [Kiro-only 说明](#kiro-only-说明)
 - [邮箱服务支持](#邮箱服务支持)
 - [快速开始](#快速开始)
 - [Docker 部署](#docker-部署)
@@ -36,19 +36,13 @@
 
 ## 当前界面与实际平台展示
 
-根据当前前端代码与界面，**左侧“平台管理”菜单默认显示的平台**为：
-
-- ChatGPT
-- Grok
-- Kiro (AWS Builder ID)
-- OpenBlockLabs
-- Trae.ai
+根据当前前端代码与界面，**左侧“平台管理”菜单默认仅显示 Kiro (AWS Builder ID)**。
 
 
 
 ## 功能特性
 
-- **多平台账号注册与管理**：统一的账号列表、详情、导入、导出、删除、批量操作
+- **Kiro 账号注册与管理**：统一的账号列表、详情、导入、导出、删除、批量操作
 - **多执行器模式**：纯协议、无头浏览器、有头浏览器
 - **多邮箱服务接入**：支持内置、第三方、自建 Worker 邮箱等多种方案
 - **验证码支持**：YesCaptcha、本地 Turnstile Solver（Camoufox）
@@ -84,40 +78,14 @@
 - Conda（推荐）
 - Windows（推荐直接使用仓库内启动脚本）
 
-## ChatGPT 专项能力
+## Kiro-only 说明
 
-当前版本里，**ChatGPT 是功能最完整的平台之一**，不仅支持注册，还支持 Token 生命周期管理、状态探测和外部系统同步。
+当前版本仅保留：
 
-### 1. ChatGPT Token 方案切换
-
-前端当前提供两种 ChatGPT 注册模式：
-
-- **有 RT**（默认推荐）
-  - 走新 PR 链路
-  - 产出 **Access Token + Refresh Token**
-- **无 RT**（兼容旧方案）
-  - 走旧链路
-  - 仅产出 **Access Token / Session**
-  - 依赖 RT 的后续能力可能不可用
-
-这项切换在以下位置都能看到：
-
-- 注册任务页
-- ChatGPT 平台注册弹窗
-
-
-
-### 4. ChatGPT 批量状态同步与补传
-
-在 ChatGPT 平台列表顶部，当前还有两类批量能力：
-
-- **状态同步**
-  - 同步所选账号本地状态
-  - 同步所选账号 CLIProxyAPI 状态
-  - 或对当前筛选结果批量执行
-- **补传远端未发现**
-  - 补传远端未发现的 auth-file
-  - 支持“当前筛选范围”或“当前所选账号”两种作用范围
+- Kiro (AWS Builder ID) 注册
+- Kiro 账号列表与批量管理
+- Kiro Manager 导入 / 回填
+- 本地 Turnstile Solver
 
 ## 邮箱服务支持
 
@@ -417,10 +385,11 @@ APP_IMAGE=any-auto-register:local docker compose up -d
 
 ### Docker 使用建议
 
-- 当前 Docker 镜像主要覆盖主应用和本地 Turnstile Solver
-- `grok2api`、`CLIProxyAPI`、`Kiro Account Manager` 的自动安装/拉起逻辑仍偏向宿主机环境
+- 当前仓库已收缩为 **Kiro-only**
+- Docker 镜像主要覆盖主应用和本地 Turnstile Solver
+- `Kiro Account Manager` 的自动安装/拉起逻辑仍偏向宿主机环境
 - 若依赖 `conda`、Go 或 Windows 可执行文件，不建议直接在当前 Linux 容器中启动这些插件
-- 如果你只需要 Web UI、账号管理、任务调度和本地 Solver，当前 Compose 配置可直接使用
+- 如果你只需要 Kiro 注册、账号管理和本地 Solver，当前 Compose 配置可直接使用
 
 ## 插件与外部依赖
 
@@ -432,12 +401,10 @@ APP_IMAGE=any-auto-register:local docker compose up -d
 
 ### 外部插件 Git 地址
 
-项目当前支持按需安装/启动以下外部组件：
+项目当前仅保留以下外部组件：
 
 | 项目 | 用途 | Git 地址 |
 | --- | --- | --- |
-| CLIProxyAPI | CPA / 代理池管理服务 | `https://github.com/router-for-me/CLIProxyAPI.git` |
-| grok2api | Grok token 管理、回填、聊天/API 服务 | `https://github.com/chenyme/grok2api.git` |
 | kiro-account-manager | Kiro 账号管理相关插件 | `https://github.com/hj01857655/kiro-account-manager.git` |
 
 如果你后续要改成 `ghproxy`、`gitclone`、企业 Git 镜像或其他代理地址，需要同步修改：

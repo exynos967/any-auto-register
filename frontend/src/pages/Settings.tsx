@@ -44,14 +44,6 @@ const SELECT_FIELDS: Record<string, { label: string; value: string }[]> = {
     { label: '本地 Solver (Camoufox)', value: 'local_solver' },
     { label: '手动', value: 'manual' },
   ],
-  cpa_cleanup_enabled: [
-    { label: '关闭', value: '0' },
-    { label: '开启', value: '1' },
-  ],
-  codex_proxy_upload_type: [
-    { label: 'AT（Access Token，推荐）', value: 'at' },
-    { label: 'RT（Refresh Token）', value: 'rt' },
-  ],
 }
 
 const TAB_ITEMS = [
@@ -159,7 +151,7 @@ const TAB_ITEMS = [
       },
       {
         title: 'LuckMail',
-        desc: 'ChatGPT 走购买邮箱，其他平台继续走订单接码老逻辑',
+        desc: 'Kiro 场景下优先使用购买邮箱模式',
         fields: [
           { key: 'luckmail_base_url', label: '平台地址', placeholder: 'https://mails.luckyous.com' },
           { key: 'luckmail_api_key', label: 'API Key', secret: true },
@@ -185,101 +177,6 @@ const TAB_ITEMS = [
     ],
   },
   {
-    key: 'chatgpt',
-    label: 'ChatGPT',
-    icon: <ApiOutlined />,
-    sections: [
-      {
-        title: 'CPA 面板',
-        desc: '注册完成后自动上传到 CPA 管理平台',
-        fields: [
-          { key: 'cpa_api_url', label: 'API URL', placeholder: 'https://your-cpa.example.com' },
-          { key: 'cpa_api_key', label: 'API Key', secret: true },
-        ],
-      },
-      {
-        title: 'Sub2API 面板',
-        desc: '注册完成后自动上传到 Sub2API 管理后台',
-        fields: [
-          { key: 'sub2api_api_url', label: 'API URL', placeholder: 'https://your-sub2api.example.com' },
-          { key: 'sub2api_api_key', label: 'API Key', secret: true },
-        ],
-      },
-      {
-        title: 'CPA 自动维护',
-        desc: '定时删除 status=error 的凭证，剩余数量低于阈值时自动按现有配置补注册 ChatGPT',
-        fields: [
-          { key: 'cpa_cleanup_enabled', label: '自动维护', type: 'select' },
-          { key: 'cpa_cleanup_interval_minutes', label: '检查间隔（分钟）', placeholder: '60' },
-          { key: 'cpa_cleanup_threshold', label: '最低凭证阈值', placeholder: '5' },
-          { key: 'cpa_cleanup_concurrency', label: '补注册并发数', placeholder: '1' },
-          { key: 'cpa_cleanup_register_delay_seconds', label: '每个注册延迟（秒）', placeholder: '0' },
-        ],
-      },
-      {
-        title: 'Team Manager',
-        desc: '上传到自建 Team Manager 系统',
-        fields: [
-          { key: 'team_manager_url', label: 'API URL', placeholder: 'https://your-tm.example.com' },
-          { key: 'team_manager_key', label: 'API Key', secret: true },
-        ],
-      },
-      {
-        title: 'CodexProxy',
-        desc: '注册完成后自动上传到 CodexProxy 管理平台',
-        fields: [
-          { key: 'codex_proxy_url', label: 'API URL', placeholder: 'https://your-codex-proxy.example.com' },
-          { key: 'codex_proxy_key', label: 'Admin Key', secret: true },
-          { key: 'codex_proxy_upload_type', label: '上传类型' },
-        ],
-      },
-      {
-        title: 'SMSToMe 手机验证',
-        desc: 'ChatGPT add_phone 阶段自动取号并轮询短信验证码',
-        fields: [
-          { key: 'smstome_cookie', label: 'SMSToMe Cookie', secret: true },
-          { key: 'smstome_country_slugs', label: '国家列表', placeholder: 'united-kingdom,poland' },
-          { key: 'smstome_phone_attempts', label: '手机号尝试次数', placeholder: '3' },
-          { key: 'smstome_otp_timeout_seconds', label: '短信等待秒数', placeholder: '45' },
-          { key: 'smstome_poll_interval_seconds', label: '轮询间隔秒数', placeholder: '5' },
-          { key: 'smstome_sync_max_pages_per_country', label: '每国同步页数', placeholder: '5' },
-        ],
-      },
-    ],
-  },
-  {
-    key: 'cliproxyapi',
-    label: 'CLIProxyAPI',
-    icon: <ApiOutlined />,
-    sections: [
-      {
-        title: '管理面板',
-        desc: '用于 CLIProxyAPI 管理页登录',
-        fields: [
-          { key: 'cliproxyapi_base_url', label: 'API URL', placeholder: 'http://127.0.0.1:8317' },
-          { key: 'cliproxyapi_management_key', label: '管理口令', secret: true, placeholder: '默认 cliproxyapi' },
-        ],
-      },
-    ],
-  },
-  {
-    key: 'grok',
-    label: 'Grok',
-    icon: <ApiOutlined />,
-    sections: [
-      {
-        title: 'grok2api',
-        desc: '注册成功后自动导入到 grok2api 管理后台',
-        fields: [
-          { key: 'grok2api_url', label: 'API URL', placeholder: 'http://127.0.0.1:7860' },
-          { key: 'grok2api_app_key', label: 'App Key', secret: true },
-          { key: 'grok2api_pool', label: 'Token Pool', placeholder: 'ssoBasic 或 ssoSuper' },
-          { key: 'grok2api_quota', label: 'Quota（可选）', placeholder: '留空按池默认值' },
-        ],
-      },
-    ],
-  },
-  {
     key: 'kiro',
     label: 'Kiro',
     icon: <ApiOutlined />,
@@ -297,6 +194,23 @@ const TAB_ITEMS = [
             key: 'kiro_manager_exe',
             label: 'Kiro Manager 可执行文件（可选）',
             placeholder: '未安装 Rust 时可填写已安装的 KiroAccountManager.exe',
+          },
+        ],
+      },
+      {
+        title: 'kiro.rs Admin API',
+        desc: '配置后，注册成功会自动推送凭据到 kiro.rs 的 /api/admin/credentials',
+        fields: [
+          {
+            key: 'kiro_rs_admin_url',
+            label: 'kiro.rs 地址',
+            placeholder: 'http://127.0.0.1:8990 或完整 /api/admin/credentials',
+          },
+          {
+            key: 'kiro_rs_admin_key',
+            label: 'Admin API Key',
+            placeholder: 'sk-admin-your-secret-key',
+            secret: true,
           },
         ],
       },
@@ -387,7 +301,7 @@ function ConfigField({ field }: { field: FieldConfig }) {
   const isBooleanField = field.type === 'boolean'
   const helpText =
     field.key === 'default_executor'
-      ? '仅对支持的平台生效；ChatGPT、Cursor、Grok、Kiro、Tavily、Trae 支持浏览器模式，OpenBlockLabs 仅支持纯协议。'
+      ? '当前项目仅保留 Kiro，支持 protocol / headless / headed 三种执行器。'
       : undefined
 
   return (
@@ -769,14 +683,6 @@ function IntegrationsPanel() {
               >
                 停止
               </Button>
-              {item.name === 'grok2api' ? (
-                <Button
-                  loading={busy === 'backfill-grok'}
-                  onClick={() => backfill(['grok'], 'Grok', 'backfill-grok')}
-                >
-                  回填现有 Grok 账号
-                </Button>
-              ) : null}
               {item.name === 'kiro-manager' ? (
                 <Button
                   loading={busy === 'backfill-kiro'}

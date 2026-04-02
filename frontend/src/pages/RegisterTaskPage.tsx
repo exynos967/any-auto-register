@@ -18,11 +18,8 @@ import {
   CloseCircleOutlined,
   LoadingOutlined,
 } from '@ant-design/icons'
-import { ChatGPTRegistrationModeSwitch } from '@/components/ChatGPTRegistrationModeSwitch'
 import { TaskLogPanel } from '@/components/TaskLogPanel'
-import { usePersistentChatGPTRegistrationMode } from '@/hooks/usePersistentChatGPTRegistrationMode'
 import { parseBooleanConfigValue } from '@/lib/configValueParsers'
-import { buildChatGPTRegistrationRequestAdapter } from '@/lib/chatgptRegistrationRequestAdapter'
 import { getExecutorOptions, normalizeExecutorForPlatform } from '@/lib/platformExecutorOptions'
 import { apiFetch } from '@/lib/utils'
 
@@ -32,12 +29,10 @@ export default function RegisterTaskPage() {
   const [form] = Form.useForm()
   const [task, setTask] = useState<any>(null)
   const [polling, setPolling] = useState(false)
-  const { mode: chatgptRegistrationMode, setMode: setChatgptRegistrationMode } =
-    usePersistentChatGPTRegistrationMode()
 
   useEffect(() => {
     apiFetch('/config').then((cfg) => {
-      const currentPlatform = form.getFieldValue('platform') || 'trae'
+      const currentPlatform = form.getFieldValue('platform') || 'kiro'
       form.setFieldsValue({
         executor_type: normalizeExecutorForPlatform(currentPlatform, cfg.default_executor),
         captcha_solver: cfg.default_captcha_solver || 'yescaptcha',
@@ -130,14 +125,6 @@ export default function RegisterTaskPage() {
       yescaptcha_key: values.yescaptcha_key,
       solver_url: values.solver_url,
     }
-    const chatgptRegistrationRequestAdapter =
-      buildChatGPTRegistrationRequestAdapter(
-        values.platform,
-        chatgptRegistrationMode,
-      )
-    const adaptedRegisterExtra = chatgptRegistrationRequestAdapter
-      ? chatgptRegistrationRequestAdapter.extendExtra(registerExtra)
-      : registerExtra
 
     const res = await apiFetch('/tasks/register', {
       method: 'POST',
@@ -150,7 +137,7 @@ export default function RegisterTaskPage() {
         proxy: values.proxy || null,
         executor_type: values.executor_type,
         captcha_solver: values.captcha_solver,
-        extra: adaptedRegisterExtra,
+        extra: registerExtra,
       }),
     })
     setTask(res)
@@ -193,7 +180,7 @@ export default function RegisterTaskPage() {
       </div>
 
       <Form form={form} layout="vertical" onFinish={submit} initialValues={{
-        platform: 'trae',
+        platform: 'kiro',
         executor_type: 'protocol',
         captcha_solver: 'yescaptcha',
         mail_provider: 'luckmail',
@@ -208,13 +195,7 @@ export default function RegisterTaskPage() {
           <Form.Item name="platform" label="平台" rules={[{ required: true }]}>
             <Select
               options={[
-                { value: 'chatgpt', label: 'ChatGPT' },
-                { value: 'trae', label: 'Trae.ai' },
-                { value: 'cursor', label: 'Cursor' },
                 { value: 'kiro', label: 'Kiro' },
-                { value: 'grok', label: 'Grok' },
-                { value: 'tavily', label: 'Tavily' },
-                { value: 'openblocklabs', label: 'OpenBlockLabs' },
               ]}
             />
           </Form.Item>
@@ -243,14 +224,6 @@ export default function RegisterTaskPage() {
               <Input placeholder="http://user:pass@host:port" />
             </Form.Item>
           </Space>
-          {platform === 'chatgpt' && (
-            <Form.Item label="ChatGPT Token 方案">
-              <ChatGPTRegistrationModeSwitch
-                mode={chatgptRegistrationMode}
-                onChange={setChatgptRegistrationMode}
-              />
-            </Form.Item>
-          )}
         </Card>
 
         <Card title="邮箱配置" style={{ marginBottom: 16 }}>
@@ -385,32 +358,6 @@ export default function RegisterTaskPage() {
             </>
           )}
         </Card>
-
-        {platform === 'chatgpt' && (
-          <Card title="ChatGPT 手机验证" style={{ marginBottom: 16 }}>
-            <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
-              仅在 OAuth 流程进入 `add_phone` 时使用，用于自动取号并轮询短信验证码。
-            </Text>
-            <Form.Item name="smstome_cookie" label="SMSToMe Cookie">
-              <Input.Password placeholder="cf_clearance=...; PHPSESSID=..." />
-            </Form.Item>
-            <Form.Item name="smstome_country_slugs" label="国家列表">
-              <Input placeholder="united-kingdom,poland,finland" />
-            </Form.Item>
-            <Form.Item name="smstome_phone_attempts" label="手机号尝试次数">
-              <Input placeholder="3" />
-            </Form.Item>
-            <Form.Item name="smstome_otp_timeout_seconds" label="短信等待秒数">
-              <Input placeholder="45" />
-            </Form.Item>
-            <Form.Item name="smstome_poll_interval_seconds" label="轮询间隔秒数">
-              <Input placeholder="5" />
-            </Form.Item>
-            <Form.Item name="smstome_sync_max_pages_per_country" label="每国同步页数">
-              <Input placeholder="5" />
-            </Form.Item>
-          </Card>
-        )}
 
         {captchaSolver === 'yescaptcha' && (
           <Card title="验证码配置" style={{ marginBottom: 16 }}>

@@ -15,14 +15,12 @@ class Scheduler:
         self._loop_interval_seconds = 60
         self._trial_check_interval_seconds = 3600
         self._last_trial_check_at = 0.0
-        self._last_cpa_maintenance_at = 0.0
 
     def start(self):
         if self._running:
             return
         self._running = True
         self._last_trial_check_at = 0.0
-        self._last_cpa_maintenance_at = 0.0
         self._thread = threading.Thread(target=self._loop, daemon=True)
         self._thread.start()
         print("[Scheduler] 已启动")
@@ -40,20 +38,7 @@ class Scheduler:
                 except Exception as e:
                     print(f"[Scheduler] Trial 检查错误: {e}")
 
-            cpa_interval = self._get_cpa_maintenance_interval_seconds()
-            if cpa_interval and now - self._last_cpa_maintenance_at >= cpa_interval:
-                try:
-                    self.check_cpa_credentials()
-                    self._last_cpa_maintenance_at = now
-                except Exception as e:
-                    print(f"[Scheduler] CPA 维护错误: {e}")
-
             time.sleep(self._loop_interval_seconds)
-
-    def _get_cpa_maintenance_interval_seconds(self) -> int:
-        from services.cpa_manager import get_cpa_maintenance_interval_seconds
-
-        return get_cpa_maintenance_interval_seconds()
 
     def check_trial_expiry(self):
         """检查 trial 到期账号，更新状态"""
@@ -103,8 +88,7 @@ class Scheduler:
                 with Session(engine) as s:
                     a = s.get(AccountModel, acc.id)
                     if a:
-                        if acc.platform != "chatgpt":
-                            a.status = acc.status if valid else AccountStatus.INVALID.value
+                        a.status = acc.status if valid else AccountStatus.INVALID.value
                         a.updated_at = datetime.now(timezone.utc)
                         s.add(a)
                         s.commit()
@@ -115,12 +99,5 @@ class Scheduler:
             except Exception:
                 results["error"] += 1
         return results
-
-    def check_cpa_credentials(self):
-        """清理 CPA 中的 error 凭证，并在低于阈值时自动补注册。"""
-        from services.cpa_manager import maintain_cpa_credentials
-
-        return maintain_cpa_credentials()
-
 
 scheduler = Scheduler()

@@ -57,6 +57,9 @@ def _ensure_task_mutable(task_id: str) -> None:
 def _prepare_register_request(req: RegisterTaskRequest) -> RegisterTaskRequest:
     from core.config_store import config_store
 
+    if req.platform != "kiro":
+        raise HTTPException(400, "当前项目已收缩为仅支持 Kiro 注册")
+
     req_data = req.model_dump()
     req_data["extra"] = deepcopy(req_data.get("extra") or {})
     prepared = RegisterTaskRequest(**req_data)
@@ -65,18 +68,7 @@ def _prepare_register_request(req: RegisterTaskRequest) -> RegisterTaskRequest:
         "mail_provider", ""
     )
     if mail_provider == "luckmail":
-        platform = prepared.platform
-        if platform in ("tavily", "openblocklabs"):
-            raise HTTPException(400, f"LuckMail 渠道暂时不支持 {platform} 项目注册")
-
-        mapping = {
-            "trae": "trae",
-            "cursor": "cursor",
-            "grok": "grok",
-            "kiro": "kiro",
-            "chatgpt": "openai",
-        }
-        prepared.extra["luckmail_project_code"] = mapping.get(platform, platform)
+        prepared.extra["luckmail_project_code"] = "kiro"
 
     return prepared
 
@@ -254,7 +246,7 @@ def _run_register(task_id: str, req: RegisterTaskRequest):
                     mail_provider = merged_extra.get("mail_provider", "")
                     if mail_provider:
                         account.extra.setdefault("mail_provider", mail_provider)
-                    if mail_provider == "luckmail" and req.platform == "chatgpt":
+                    if mail_provider == "luckmail":
                         mailbox_token = getattr(_mailbox, "_token", "") or ""
                         if mailbox_token:
                             account.extra.setdefault("mailbox_token", mailbox_token)
