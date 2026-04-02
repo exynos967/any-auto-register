@@ -308,6 +308,7 @@ services/turnstile_solver/solver.log
 
 - `Dockerfile`
 - `docker-compose.yml`
+- `.github/workflows/docker-image.yml`
 
 默认部署内容包括：
 
@@ -319,12 +320,34 @@ services/turnstile_solver/solver.log
 ### 启动
 
 ```bash
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 ```
 
-首次构建会额外下载 Python 依赖、Playwright Chromium 和 Camoufox，因此耗时会明显更长。
+默认会直接使用仓库 GitHub Actions 发布到 GHCR 的镜像：
+
+```text
+ghcr.io/exynos967/any-auto-register:latest
+```
+
+首次拉取镜像时会下载完整运行环境，因此耗时可能较长。
 
 当前 Dockerfile 已改为通过固定直链安装 Camoufox，以避免构建时访问 GitHub Releases API 触发匿名限流。
+
+### GitHub Actions 自动构建
+
+仓库内置工作流：
+
+```text
+.github/workflows/docker-image.yml
+```
+
+触发规则：
+
+- push 到 `main`：自动构建并推送 `ghcr.io/exynos967/any-auto-register:latest`
+- push `v*` 标签：额外推送同名版本标签
+- PR 到 `main`：仅构建校验，不推送
+- 支持手动 `workflow_dispatch`
 
 ### 访问
 
@@ -362,6 +385,7 @@ DATABASE_URL=sqlite:////app/data/account_manager.db
 
 | 变量名 | 默认值 | 说明 |
 | --- | --- | --- |
+| `APP_IMAGE` | `ghcr.io/exynos967/any-auto-register:latest` | Compose 默认使用的镜像，可覆盖为自定义 tag 或本地镜像 |
 | `HOST` | `0.0.0.0` | FastAPI 监听地址 |
 | `PORT` | `8000` | FastAPI 监听端口 |
 | `DATABASE_URL` | `sqlite:////app/data/account_manager.db` | SQLite 数据库地址 |
@@ -373,10 +397,22 @@ DATABASE_URL=sqlite:////app/data/account_manager.db
 
 ### Camoufox 构建参数
 
-如需覆盖上游版本，可在构建时指定：
+如需本地自行构建镜像并覆盖默认 GHCR 镜像，可执行：
 
 ```bash
-CAMOUFOX_VERSION=135.0.1 CAMOUFOX_RELEASE=beta.24 docker compose build app
+docker build -t any-auto-register:local .
+APP_IMAGE=any-auto-register:local docker compose up -d
+```
+
+如需覆盖 Camoufox 上游版本，可在本地构建时指定：
+
+```bash
+docker build \
+  --build-arg CAMOUFOX_VERSION=135.0.1 \
+  --build-arg CAMOUFOX_RELEASE=beta.24 \
+  -t any-auto-register:local .
+
+APP_IMAGE=any-auto-register:local docker compose up -d
 ```
 
 ### Docker 使用建议
@@ -483,6 +519,9 @@ http://localhost:8889/
 
 ```text
 any-auto-register/
+├── .github/
+│   └── workflows/
+│       └── docker-image.yml
 ├── api/
 ├── core/
 ├── docs/
