@@ -301,7 +301,7 @@ function ConfigField({ field }: { field: FieldConfig }) {
   const isBooleanField = field.type === 'boolean'
   const helpText =
     field.key === 'default_executor'
-      ? '当前项目仅保留 Kiro，支持 protocol / headless / headed 三种执行器。'
+      ? '当前项目仅保留 Kiro，当前支持 headless / headed；旧的 protocol 配置会自动回退到 headless。'
       : undefined
 
   return (

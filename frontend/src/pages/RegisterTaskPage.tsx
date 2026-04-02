@@ -181,7 +181,7 @@ export default function RegisterTaskPage() {
 
       <Form form={form} layout="vertical" onFinish={submit} initialValues={{
         platform: 'kiro',
-        executor_type: 'protocol',
+        executor_type: 'headless',
         captcha_solver: 'yescaptcha',
         mail_provider: 'luckmail',
         gptmail_base_url: 'https://mail.chatgpt.org.uk',

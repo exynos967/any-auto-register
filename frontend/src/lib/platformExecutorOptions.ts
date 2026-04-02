@@ -5,7 +5,7 @@ export const EXECUTOR_OPTIONS = [
 ] as const
 
 const PLATFORM_EXECUTORS: Record<string, string[]> = {
-  kiro: ['protocol', 'headless', 'headed'],
+  kiro: ['headless', 'headed'],
 }
 
 export function getSupportedExecutors(platform?: string) {

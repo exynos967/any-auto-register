@@ -20,8 +20,12 @@ class KiroPlatform(BasePlatform):
         proxy = self.config.proxy
         laoudo_account_id = self.config.extra.get("laoudo_account_id", "")
 
-        reg = KiroRegister(proxy=proxy, tag="KIRO")
+        executor_type = (self.config.executor_type or "headless").strip().lower()
+        headless = executor_type != "headed"
+        reg = KiroRegister(proxy=proxy, tag="KIRO", headless=headless)
         log_fn = getattr(self, '_log_fn', print)
+        if executor_type == "protocol":
+            log_fn("Kiro 暂无纯协议注册实现，已自动回退为无头浏览器模式")
         reg.log = lambda msg: log_fn(msg)
 
         otp_timeout = int(self.config.extra.get("otp_timeout", 120))
